@@ -4,10 +4,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-    name: String ,
-    email: String , 
-    password: String , 
-    dateOfBirth: Date
+    name: { type: String, required: true , unique: true},
+    email: { type: String, required: true, unique: true }, // Ensures email uniqueness across users
+    password: { type: String, required: true },
+    dateOfBirth: { type: Date, required: true } ,
+    friendsWith: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] //new Feature
 });
 
 const User = mongoose.model( 'User' , UserSchema);
