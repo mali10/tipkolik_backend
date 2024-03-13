@@ -7,6 +7,28 @@ const User = require("./../models/User");
 // Password handler
 const bcrypt = require("bcrypt");
 
+// Endpoint to get user IDs by names
+router.post('/ids', async (req, res) => {
+  
+  const { names } = req.body; // Expecting an array of names
+  
+  try {
+      // Find users whose names match any in the provided list
+      // This uses the $in operator to find documents where the name matches any value in the array
+      const users = await User.find({
+          name: { $in: names }
+      }).select('_id name'); // Select only the id and name fields
+
+      // Optionally, map the results to a simpler format if needed
+      const userIds = users.map(user => ({ id: user._id, name: user.name }));
+      
+      res.json(userIds);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error retrieving user IDs", error: error.message });
+  }
+});
+
 // Signup
 router.post("/signup", (req, res) => {
   let { name, email, password, dateOfBirth } = req.body;
