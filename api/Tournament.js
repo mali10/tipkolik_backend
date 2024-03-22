@@ -5,10 +5,10 @@ const router = express.Router();
 const Tournament = require('../models/Tournament');
 
 // User model for reference population
-const User = require('../models/User');
+const User = require('../models/User');  
 
 // Create a new tournament
-router.post('/create', async (req, res) => {
+router.post('/create', async (req, res) => {   // fatih terim
     const { playerIds, teams, settings } = req.body; // Expecting IDs directly from the frontend now
 
     try {
