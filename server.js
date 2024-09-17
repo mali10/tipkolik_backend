@@ -19,7 +19,6 @@ const TournamentRouter = require('./api/Tournament'); // Make sure you have this
 app.use('/user', UserRouter);
 app.use('/tournament', TournamentRouter);
 
-
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 })

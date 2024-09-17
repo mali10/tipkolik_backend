@@ -7,25 +7,34 @@ const User = require("./../models/User");
 // Password handler
 const bcrypt = require("bcrypt");
 
-// Endpoint to get user IDs by names
-router.post('/ids', async (req, res) => {
-  
-  const { names } = req.body; // Expecting an array of names
-  
+// Endpoint to check if a player exists by name
+router.post('/check-player', async (req, res) => {
   try {
-      // Find users whose names match any in the provided list
-      // This uses the $in operator to find documents where the name matches any value in the array
-      const users = await User.find({
-          name: { $in: names }
-      }).select('_id name'); // Select only the id and name fields
-
-      // Optionally, map the results to a simpler format if needed
-      const userIds = users.map(user => ({ id: user._id, name: user.name }));
+      const { playerName } = req.body;
       
-      res.json(userIds);
+      // Trim and validate the playerName to ensure it's a non-empty string
+      if (typeof playerName !== 'string' || playerName.trim().length === 0) {
+          return res.status(400).json({
+              status: 'FAILED',
+              message: 'Player name is required and must be a valid string.'
+          });
+      }
+
+      const user = await User.findOne({ name: playerName.trim() });
+      const exists = !!user; // Coerce the user object to a boolean to indicate existence
+
+      res.status(200).json({
+          status: 'SUCCESS',
+          exists,
+          message: exists ? 'Player found.' : 'Player does not exist.'
+      });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Error retrieving user IDs", error: error.message });
+      console.error(`Error checking player existence for name ${req.body.playerName}:`, error);
+      res.status(500).json({
+          status: 'FAILED',
+          message: 'Error checking player existence',
+          error: error.message
+      });
   }
 });
 
@@ -85,6 +94,7 @@ router.post("/signup", (req, res) => {
                 email,
                 password: hashedPassword,
                 dateOfBirth,
+                tournaments: [],
               });
 
               newUser
@@ -138,7 +148,6 @@ router.post("/signin", (req, res) => {
       .then((data) => {
         if (data.length) {
           // User exists
-
           const hashedPassword = data[0].password;
           bcrypt
             .compare(password, hashedPassword)
