@@ -4,7 +4,7 @@ const PredictionsSchema = new Schema({
     totalPoints: { type: Number, required: true },
     predictions: [{
         //leagueID
-        //week_number: Number,
+        //week_number: Number
         games: [{
             gameID: { type: String, required: true },
             prediction: { homeScore: Number, awayScore: Number }, // boşsa -1 olsun
