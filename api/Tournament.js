@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-// MongoDB Tournament model
+
 const Tournament = require('../models/Tournament');
-// User model for reference population
+
 const User = require('../models/User');
 
 // Endpoint to fetch teams list for a given tournament by name
@@ -42,12 +42,10 @@ router.get('/tournaments-list', async (req, res) => {
     try {
         const { name } = req.query;
 
-        // Check if the name parameter is provided
         if (!name) {
             return res.status(400).json({ message: 'User name is required.' });
         }
-    
-        // Convert input to lowercase for case-insensitive comparison
+
         const lowercaseName = name.toLowerCase();
         const user = await User.findOne({ name: lowercaseName });
 
@@ -55,14 +53,12 @@ router.get('/tournaments-list', async (req, res) => {
             return res.status(404).json({ message: `User not found with the name: '${lowercaseName}'` });
         }
     
-        // Fetch tournaments using the IDs stored in the user's tournaments array
         const tournaments = await Tournament.find({ _id: { $in: user.tournaments } }).select('t_name');
-    
-        // If no tournaments found, could return a different status like 204 No Content
+
         if (tournaments.length === 0) {
             return res.status(204).json([]);
         }
-        // Respond with an array of tournament names
+       
         res.json(tournaments.map(tournament => tournament.t_name));
 
     } catch (error) {
@@ -107,21 +103,18 @@ router.post('/create', async (req, res) => {
 
         console.log("backend endpoint active")
 
-        // First, convert playerNames to their corresponding User IDs
         const players = await User.find({
             'name': { $in: playerNames }
         }).select('_id');
 
-        // If not all players were found, return an error
         if (players.length !== playerNames.length) {
             return res.status(400).json({ message: "One or more players not found." });
         }
 
         const playerIds = players.map(player => player._id);
 
-        // Create and save the tournament
         const newTournament = new Tournament({
-            //creator: creator._id,
+            // creator: creator._id,
             t_name: t_name,
             players: playerIds,
             teams,
@@ -132,8 +125,7 @@ router.post('/create', async (req, res) => {
         const savedTournament = await newTournament.save();
         
         console.log("Player IDs to update:", playerIds);
-        //make it better with if statements
-        // Update each user's tournaments array
+        
         await User.updateMany(
             { _id: { $in: playerIds } },
             { $push: { tournaments: savedTournament._id } }

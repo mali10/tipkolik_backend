@@ -1,16 +1,22 @@
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
 const PredictionsSchema = new Schema({
     userID: { type: Schema.Types.ObjectId, ref: 'User' },
     tournamentID: { type: Schema.Types.ObjectId, ref: 'Tournament' },
     totalPoints: { type: Number, required: true },
     predictions: [{
-        //leagueID
-        //week_number: Number
+        leagueID: { type: Schema.Types.ObjectId, ref: 'League' }, // Reference to the league
         games: [{
             gameID: { type: String, required: true },
-            prediction: { homeScore: Number, awayScore: Number }, // boşsa -1 olsun
+            predictions: { homeScore: Number, awayScore: Number }, // Set score = -1 if empty
             point: Number,
         }],
-        selectedSurpriseGame: { type: String, required: false },
+        selectedSurpriseGame: { type: Number, required: false }, 
         points_won: Number
     }]
 });
+
+const Predictions = mongoose.model( 'Predictions' , PredictionsSchema);
+
+module.exports = Predictions;

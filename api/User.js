@@ -1,10 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-// mongodb user model
 const User = require("./../models/User");
 
-// Password handler
 const bcrypt = require("bcrypt");
 
 // Endpoint to check if a player exists by name
@@ -12,7 +10,6 @@ router.post('/check-player', async (req, res) => {
   try {
       const { playerName } = req.body;
       
-      // Trim and validate the playerName to ensure it's a non-empty string
       if (typeof playerName !== 'string' || playerName.trim().length === 0) {
           return res.status(400).json({
               status: 'FAILED',
@@ -21,7 +18,7 @@ router.post('/check-player', async (req, res) => {
       }
 
       const user = await User.findOne({ name: playerName.trim() });
-      const exists = !!user; // Coerce the user object to a boolean to indicate existence
+      const exists = !!user; 
 
       res.status(200).json({
           status: 'SUCCESS',
@@ -76,15 +73,12 @@ router.post("/signup", (req, res) => {
     User.find({ email })
       .then((result) => {
         if (result.length) {
-          // A user already exists
           res.json({
             status: "FAILED",
             message: "User with the provided email already exists",
           });
         } else {
-          // Try to create new user
 
-          // password handling
           const saltRounds = 10;
           bcrypt
             .hash(password, saltRounds)
@@ -143,17 +137,14 @@ router.post("/signin", (req, res) => {
       message: "Empty credentials supplied",
     });
   } else {
-    // Check if user exist
     User.find({ email })
       .then((data) => {
         if (data.length) {
-          // User exists
           const hashedPassword = data[0].password;
           bcrypt
             .compare(password, hashedPassword)
             .then((result) => {
               if (result) {
-                // Password match
                 res.json({
                   status: "SUCCESS",
                   message: "Signin successful",
